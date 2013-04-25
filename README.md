@@ -8,8 +8,6 @@ Create the SCP storage alternative to upload files using [CarrierWave](https://g
 
 ## Configuration
 
-First configure CarrierWave with your FTP credentials:
-
 ```ruby
 CarrierWave.configure do |config|
   storage :scp
