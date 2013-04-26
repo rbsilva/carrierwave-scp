@@ -7,7 +7,7 @@ require 'carrierwave-scp/version'
 class CarrierWave::Uploader::Base
   add_config :scp_host
   add_config :scp_user
-  add_config :scp_passwd
+  add_config :scp_options
   add_config :scp_folder
 
   configure do |config|

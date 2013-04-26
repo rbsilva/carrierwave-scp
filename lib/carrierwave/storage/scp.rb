@@ -24,7 +24,7 @@ module CarrierWave
         end
 
         def read
-          file.read
+          file
         end
 
         def size
@@ -32,15 +32,24 @@ module CarrierWave
         end
 
         def store(new_file)
-          Net::SCP.upload!(@uploader.scp_host, @uploader.scp_user,
-            StringIO.new(new_file.read), "#{@uploader.scp_folder}/#{path}",
-            :password => @uploader.scp_passwd, :recursive => true)
+          Net::SSH.start(@uploader.scp_host, @uploader.scp_user, @uploader.scp_options) do |session|
+            new_dir = path.split('/')
+            new_dir.delete(new_dir[-1])
+            new_dir = new_dir.join('/')
+            session.exec! "mkdir #{@uploader.scp_folder}/#{new_dir}"
+            session.scp.upload! new_file.path, "#{@uploader.scp_folder}/#{path}", :recursive => true
+          end
         end
 
       private
 
         def file
-          @file ||= open("scp://#{@uploader.scp_user}:#{@uploader.scp_passwd}@#{@uploader.scp_host}#{@uploader.scp_folder}/#{path}")
+          remote_file = nil
+          Net::SSH.start(@uploader.scp_host, @uploader.scp_user, @uploader.scp_options) do |session|
+            remote_file = session.scp.download!("#{@uploader.scp_folder}/#{path}", nil)
+          end
+          remote_file
+          #@file ||= open("scp://#{@uploader.scp_user}:#{@uploader.scp_options[:password]}@#{@uploader.scp_host}#{@uploader.scp_folder}/#{path}", options)
         end
 
       end #end File
