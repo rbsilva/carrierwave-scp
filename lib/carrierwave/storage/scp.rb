@@ -12,7 +12,7 @@ module CarrierWave
         CarrierWave::Storage::SCP::File.new(uploader, self, uploader.store_path(identifier))
       end
 
-      class File
+      class File #TODO delete remote file
         attr_reader :path
 
         def extension
@@ -36,6 +36,7 @@ module CarrierWave
             new_dir = path.split('/')
             new_dir.delete(new_dir[-1])
             new_dir = new_dir.join('/')
+            #TODO mkdir -p ?
             session.exec! "mkdir #{@uploader.scp_folder}/#{new_dir}"
             session.scp.upload! new_file.path, "#{@uploader.scp_folder}/#{path}", :recursive => true
           end
